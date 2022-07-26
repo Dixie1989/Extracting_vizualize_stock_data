@@ -1,0 +1,303 @@
+cognitiveclass.ai logo
+Extracting and Visualizing Stock Data
+Description
+Extracting essential data from a dataset and displaying it is a necessary part of data science; therefore individuals can make correct decisions based on the data. In this assignment, you will extract some stock data, you will then display this data in a graph.
+
+Table of Contents
+Define a Function that Makes a Graph
+Question 1: Use yfinance to Extract Stock Data
+Question 2: Use Webscraping to Extract Tesla Revenue Data
+Question 3: Use yfinance to Extract Stock Data
+Question 4: Use Webscraping to Extract GME Revenue Data
+Question 5: Plot Tesla Stock Graph
+Question 6: Plot GameStop Stock Graph
+Estimated Time Needed: 30 min
+
+!pip install yfinance==0.1.67
+#!pip install pandas==1.3.3
+#!pip install requests==2.26.0
+!mamba install bs4==4.10.0 -y
+#!pip install plotly==5.3.1
+Requirement already satisfied: yfinance==0.1.67 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (0.1.67)
+Requirement already satisfied: lxml>=4.5.1 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from yfinance==0.1.67) (4.7.1)
+Requirement already satisfied: multitasking>=0.0.7 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from yfinance==0.1.67) (0.0.11)
+Requirement already satisfied: numpy>=1.15 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from yfinance==0.1.67) (1.20.3)
+Requirement already satisfied: requests>=2.20 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from yfinance==0.1.67) (2.26.0)
+Requirement already satisfied: pandas>=0.24 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from yfinance==0.1.67) (1.3.4)
+Requirement already satisfied: python-dateutil>=2.7.3 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from pandas>=0.24->yfinance==0.1.67) (2.8.2)
+Requirement already satisfied: pytz>=2017.3 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from pandas>=0.24->yfinance==0.1.67) (2021.3)
+Requirement already satisfied: six>=1.5 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from python-dateutil>=2.7.3->pandas>=0.24->yfinance==0.1.67) (1.15.0)
+Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from requests>=2.20->yfinance==0.1.67) (2022.6.15)
+Requirement already satisfied: charset-normalizer~=2.0.0 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from requests>=2.20->yfinance==0.1.67) (2.0.4)
+Requirement already satisfied: urllib3<1.27,>=1.21.1 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from requests>=2.20->yfinance==0.1.67) (1.26.7)
+Requirement already satisfied: idna<4,>=2.5 in /opt/conda/envs/Python-3.9/lib/python3.9/site-packages (from requests>=2.20->yfinance==0.1.67) (3.3)
+/usr/bin/sh: mamba: command not found
+import yfinance as yf
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+Define Graphing Function
+In this section, we define the function make_graph. You don't have to know how the function works, you should only care about the inputs. It takes a dataframe with stock data (dataframe must contain Date and Close columns), a dataframe with revenue data (dataframe must contain Date and Revenue columns), and the name of the stock.
+
+def make_graph(stock_data, revenue_data, stock):
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=("Historical Share Price", "Historical Revenue"), vertical_spacing = .3)
+    stock_data_specific = stock_data[stock_data.Date <= '2021--06-14']
+    revenue_data_specific = revenue_data[revenue_data.Date <= '2021-04-30']
+    fig.add_trace(go.Scatter(x=pd.to_datetime(stock_data_specific.Date, infer_datetime_format=True), y=stock_data_specific.Close.astype("float"), name="Share Price"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=pd.to_datetime(revenue_data_specific.Date, infer_datetime_format=True), y=revenue_data_specific.Revenue.astype("float"), name="Revenue"), row=2, col=1)
+    fig.update_xaxes(title_text="Date", row=1, col=1)
+    fig.update_xaxes(title_text="Date", row=2, col=1)
+    fig.update_yaxes(title_text="Price ($US)", row=1, col=1)
+    fig.update_yaxes(title_text="Revenue ($US Millions)", row=2, col=1)
+    fig.update_layout(showlegend=False,
+    height=900,
+    title=stock,
+    xaxis_rangeslider_visible=True)
+    fig.show()
+Question 1: Use yfinance to Extract Stock Data
+Using the Ticker function enter the ticker symbol of the stock we want to extract data on to create a ticker object. The stock is Tesla and its ticker symbol is TSLA.
+
+tesla = yf.Ticker("TSLA")
+Using the ticker object and the function history extract stock information and save it in a dataframe named tesla_data. Set the period parameter to max so we get information for the maximum amount of time.
+
+tesla_data = tesla.history(period="max") 
+Reset the index using the reset_index(inplace=True) function on the tesla_data DataFrame and display the first five rows of the tesla_data dataframe using the head function. Take a screenshot of the results and code from the beginning of Question 1 to the results below.
+
+tesla_data.reset_index(inplace=True)
+tesla_data.head()
+Date	Open	High	Low	Close	Volume	Dividends	Stock Splits
+0	2010-06-29	3.800	5.000	3.508	4.778	93831500	0	0.0
+1	2010-06-30	5.158	6.084	4.660	4.766	85935500	0	0.0
+2	2010-07-01	5.000	5.184	4.054	4.392	41094000	0	0.0
+3	2010-07-02	4.600	4.620	3.742	3.840	25699000	0	0.0
+4	2010-07-06	4.000	4.000	3.166	3.222	34334500	0	0.0
+Question 2: Use Webscraping to Extract Tesla Revenue Data
+Use the requests library to download the webpage https://www.macrotrends.net/stocks/charts/TSLA/tesla/revenue. Save the text of the response as a variable named html_data.
+
+url = "https://www.macrotrends.net/stocks/charts/TSLA/tesla/revenue"
+html_data = requests.get(url).text
+Parse the html data using beautiful_soup.
+
+soup = BeautifulSoup(html_data,"html.parser")
+Using BeautifulSoup or the read_html function extract the table with Tesla Quarterly Revenue and store it into a dataframe named tesla_revenue. The dataframe should have columns Date and Revenue.
+
+Click here if you need help locating the table
+df=pd.read_html(html_data,header=0)
+table=soup.find_all('table')
+second_table= table[1]
+tesla_revenue= pd.DataFrame(columns=["Date","Revenue"])
+for row in second_table.find("tbody").find_all("tr"):
+    col= row.find_all('td')
+    date= col[0].string
+    revenue= col[1].string
+    tesla_revenue= tesla_revenue.append({"Date":date, "Revenue":revenue}, ignore_index = True)
+tesla_revenue["Revenue"]= tesla_revenue['Revenue'].str.replace('$','').str.replace(',','')
+print(tesla_revenue)
+          Date Revenue
+0   2022-06-30   16934
+1   2022-03-31   18756
+2   2021-12-31   17719
+3   2021-09-30   13757
+4   2021-06-30   11958
+5   2021-03-31   10389
+6   2020-12-31   10744
+7   2020-09-30    8771
+8   2020-06-30    6036
+9   2020-03-31    5985
+10  2019-12-31    7384
+11  2019-09-30    6303
+12  2019-06-30    6350
+13  2019-03-31    4541
+14  2018-12-31    7226
+15  2018-09-30    6824
+16  2018-06-30    4002
+17  2018-03-31    3409
+18  2017-12-31    3288
+19  2017-09-30    2985
+20  2017-06-30    2790
+21  2017-03-31    2696
+22  2016-12-31    2285
+23  2016-09-30    2298
+24  2016-06-30    1270
+25  2016-03-31    1147
+26  2015-12-31    1214
+27  2015-09-30     937
+28  2015-06-30     955
+29  2015-03-31     940
+30  2014-12-31     957
+31  2014-09-30     852
+32  2014-06-30     769
+33  2014-03-31     621
+34  2013-12-31     615
+35  2013-09-30     431
+36  2013-06-30     405
+37  2013-03-31     562
+38  2012-12-31     306
+39  2012-09-30      50
+40  2012-06-30      27
+41  2012-03-31      30
+42  2011-12-31      39
+43  2011-09-30      58
+44  2011-06-30      58
+45  2011-03-31      49
+46  2010-12-31      36
+47  2010-09-30      31
+48  2010-06-30      28
+49  2010-03-31      21
+50  2009-12-31    None
+51  2009-09-30      46
+52  2009-06-30      27
+/tmp/wsuser/ipykernel_164/3212783899.py:10: FutureWarning:
+
+The default value of regex will change from True to False in a future version. In addition, single character regular expressions will *not* be treated as literal strings when regex=True.
+
+Execute the following line to remove the comma and dollar sign from the Revenue column.
+
+tesla_revenue.dropna(subset=['Revenue'], inplace=True)
+for i in tesla_revenue : tesla_revenue[i] = tesla_revenue[i].astype(str)
+​
+Execute the following lines to remove an null or empty strings in the Revenue column.
+
+tesla_revenue.dropna(inplace=True)
+​
+tesla_revenue = tesla_revenue[tesla_revenue['Revenue'] != ""]
+Display the last 5 row of the tesla_revenue dataframe using the tail function. Take a screenshot of the results.
+
+tesla_revenue.tail(5)
+Date	Revenue
+47	2010-09-30	31
+48	2010-06-30	28
+49	2010-03-31	21
+51	2009-09-30	46
+52	2009-06-30	27
+Question 3: Use yfinance to Extract Stock Data
+Using the Ticker function enter the ticker symbol of the stock we want to extract data on to create a ticker object. The stock is GameStop and its ticker symbol is GME.
+
+gamestop = yf.Ticker("GME")
+Using the ticker object and the function history extract stock information and save it in a dataframe named gme_data. Set the period parameter to max so we get information for the maximum amount of time.
+
+gme_data = gamestop.history(period="max")
+Reset the index using the reset_index(inplace=True) function on the gme_data DataFrame and display the first five rows of the gme_data dataframe using the head function. Take a screenshot of the results and code from the beginning of Question 3 to the results below.
+
+gme_data.reset_index(inplace=True)
+gme_data.head()
+Date	Open	High	Low	Close	Volume	Dividends	Stock Splits
+0	2002-02-13	1.620128	1.693350	1.603296	1.691666	76216000	0.0	0.0
+1	2002-02-14	1.712707	1.716074	1.670626	1.683250	11021600	0.0	0.0
+2	2002-02-15	1.683250	1.687458	1.658002	1.674834	8389600	0.0	0.0
+3	2002-02-19	1.666418	1.666418	1.578047	1.607504	7410400	0.0	0.0
+4	2002-02-20	1.615920	1.662210	1.603296	1.662210	6892800	0.0	0.0
+Question 4: Use Webscraping to Extract GME Revenue Data
+Use the requests library to download the webpage https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/stock.html. Save the text of the response as a variable named html_data.
+
+gme_url = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/stock.html"
+gme_html_data = requests.get(gme_url).text
+Parse the html data using beautiful_soup.
+
+soup = BeautifulSoup(html_data,"html.parser")
+Using BeautifulSoup or the read_html function extract the table with GameStop Quarterly Revenue and store it into a dataframe named gme_revenue. The dataframe should have columns Date and Revenue. Make sure the comma and dollar sign is removed from the Revenue column using a method similar to what you did in Question 2.
+
+Click here if you need help locating the table
+df=pd.read_html(html_data,header=0)
+table=soup.find_all('table')
+second_table= table[1]
+gme_revenue= pd.DataFrame(columns=["Date","Revenue"])
+for row in second_table.find("tbody").find_all("tr"):
+    col= row.find_all('td')
+    date= col[0].string
+    revenue= col[1].string
+    gme_revenue= gme_revenue.append({"Date":date, "Revenue":revenue}, ignore_index = True)
+gme_revenue["Revenue"]= gme_revenue['Revenue'].str.replace('$','').str.replace(',','')
+​
+gme_revenue.dropna(subset=['Revenue'], inplace=True)
+for i in gme_revenue : gme_revenue[i] = gme_revenue[i].astype(str)
+print(gme_revenue)
+          Date Revenue
+0   2022-06-30   16934
+1   2022-03-31   18756
+2   2021-12-31   17719
+3   2021-09-30   13757
+4   2021-06-30   11958
+5   2021-03-31   10389
+6   2020-12-31   10744
+7   2020-09-30    8771
+8   2020-06-30    6036
+9   2020-03-31    5985
+10  2019-12-31    7384
+11  2019-09-30    6303
+12  2019-06-30    6350
+13  2019-03-31    4541
+14  2018-12-31    7226
+15  2018-09-30    6824
+16  2018-06-30    4002
+17  2018-03-31    3409
+18  2017-12-31    3288
+19  2017-09-30    2985
+20  2017-06-30    2790
+21  2017-03-31    2696
+22  2016-12-31    2285
+23  2016-09-30    2298
+24  2016-06-30    1270
+25  2016-03-31    1147
+26  2015-12-31    1214
+27  2015-09-30     937
+28  2015-06-30     955
+29  2015-03-31     940
+30  2014-12-31     957
+31  2014-09-30     852
+32  2014-06-30     769
+33  2014-03-31     621
+34  2013-12-31     615
+35  2013-09-30     431
+36  2013-06-30     405
+37  2013-03-31     562
+38  2012-12-31     306
+39  2012-09-30      50
+40  2012-06-30      27
+41  2012-03-31      30
+42  2011-12-31      39
+43  2011-09-30      58
+44  2011-06-30      58
+45  2011-03-31      49
+46  2010-12-31      36
+47  2010-09-30      31
+48  2010-06-30      28
+49  2010-03-31      21
+51  2009-09-30      46
+52  2009-06-30      27
+/tmp/wsuser/ipykernel_164/3174127543.py:10: FutureWarning:
+
+The default value of regex will change from True to False in a future version. In addition, single character regular expressions will *not* be treated as literal strings when regex=True.
+
+Display the last five rows of the gme_revenue dataframe using the tail function. Take a screenshot of the results.
+
+gme_revenue.tail()
+Date	Revenue
+47	2010-09-30	31
+48	2010-06-30	28
+49	2010-03-31	21
+51	2009-09-30	46
+52	2009-06-30	27
+Question 5: Plot Tesla Stock Graph
+Use the make_graph function to graph the Tesla Stock Data, also provide a title for the graph. The structure to call the make_graph function is make_graph(tesla_data, tesla_revenue, 'Tesla'). Note the graph will only show data upto June 2021.
+
+make_graph(tesla_data,tesla_revenue,'Tesla')
+
+Question 6: Plot GameStop Stock Graph
+Use the make_graph function to graph the GameStop Stock Data, also provide a title for the graph. The structure to call the make_graph function is make_graph(gme_data, gme_revenue, 'GameStop'). Note the graph will only show data upto June 2021.
+
+make_graph(gme_data, gme_revenue, 'GameStop')
+
+About the Authors:
+Joseph Santarcangelo has a PhD in Electrical Engineering, his research focused on using machine learning, signal processing, and computer vision to determine how videos impact human cognition. Joseph has been working for IBM since he completed his PhD.
+
+Azim Hirjani
+
+Change Log
+Date (YYYY-MM-DD)	Version	Changed By	Change Description
+2022-02-28	1.2	Lakshmi Holla	Changed the URL of GameStop
+2020-11-10	1.1	Malika Singla	Deleted the Optional part
+2020-08-27	1.0	Malika Singla	Added lab to GitLab
+© IBM Corporation 2020. All rights reserved. 
